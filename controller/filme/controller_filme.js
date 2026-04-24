@@ -15,38 +15,38 @@ const filmeDAO = require('../../model/DAO/filme/filme.js')
 //Função para inserir um novo filme 
 const inserirNovoFilme = async function (filme, contentType) {
 
-    try{
+    try {
         //Criando um clone do objeto JSON para manipular a sua estrutura local sem 
-    //modificar a estrutura original
-    let message = JSON.parse(JSON.stringify(config_message))
+        //modificar a estrutura original
+        let message = JSON.parse(JSON.stringify(config_message))
 
-    //Validação para o tipo de dados da requisição (Somente JSON)
-    if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
+        //Validação para o tipo de dados da requisição (Somente JSON)
+        if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
 
-        //Validação de dados para os atributos do filme (Status 400)
-        let validar = await validarDados(filme)
+            //Validação de dados para os atributos do filme (Status 400)
+            let validar = await validarDados(filme)
 
-        //Se a função validr retornar um JSON de erro, iremos devolver ao APP o erro 
-        if (validar) {
-            return validar
-        } else {
-            let result = await filmeDAO.insertFilme(filme)
+            //Se a função validr retornar um JSON de erro, iremos devolver ao APP o erro 
+            if (validar) {
+                return validar
+            } else {
+                let result = await filmeDAO.insertFilme(filme)
 
-            if (result) {//201
-                message.DEFAULT_MESSAGE.status = message.SUCESS_CREATED_ITEM.status
-                message.DEFAULT_MESSAGE.status_code = message.SUCESS_CREATED_ITEM.status_code
-                message.DEFAULT_MESSAGE.message = message.SUCESS_CREATED_ITEM.message
-            } else { //500
-                return message.ERROR_INTERNAL_SERVER_MODEL //500
+                if (result) {//201
+                    message.DEFAULT_MESSAGE.status = message.SUCESS_CREATED_ITEM.status
+                    message.DEFAULT_MESSAGE.status_code = message.SUCESS_CREATED_ITEM.status_code
+                    message.DEFAULT_MESSAGE.message = message.SUCESS_CREATED_ITEM.message
+                } else { //500
+                    return message.ERROR_INTERNAL_SERVER_MODEL //500
+                }
+
+                return message.DEFAULT_MESSAGE
             }
-
-            return message.DEFAULT_MESSAGE
+        } else {
+            return message.ERRO_CONTENT_TYPE
         }
-    }else{
-        return message.ERRO_CONTENT_TYPE
-    }
 
-    }catch (error){
+    } catch (error) {
         return message.ERROR_INTERNAL_SERVER_CONTROLLER //500 (Controller)
     }
 
@@ -59,11 +59,68 @@ const atualizarFilme = async function () {
 //Função para retornar todos os filmes 
 const listarFilme = async function () {
 
+    //Criando um clone do objeto JSON para manipular a sua estrutura local sem 
+    //modificar a estrutura original
+    let message = JSON.parse(JSON.stringify(config_message))
+
+    try {
+        // chama a função do DAO para retornar a lista de todos os filmes 
+        let result = await filmeDAO.selectAllFilme()
+
+        //Valida se o DAO conseguiu processar os dados
+        if (result) {
+            //Validação para verificar se existe conteúdo no array
+            if (result.length > 0) {
+                message.DEFAULT_MESSAGE.status = message.SUCESS_RESPONSE.status
+                message.DEFAULT_MESSAGE.status_code = message.SUCESS_RESPONSE.status_code
+                message.DEFAULT_MESSAGE.response.count = result.length
+                message.DEFAULT_MESSAGE.response.filme = result
+
+                return message.DEFAULT_MESSAGE //200 (Dados do Filme)
+            } else {
+                return message.ERROR_NOT_FOUND // 404 
+            }
+        } else {
+            return message.ERROR_INTERNAL_SERVER_MODEL // 500 (model)
+        }
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER // 500 (controller)        
+    }
 }
 
 //Função para buscar um filme pelo id
-const buscarFilme = async function () {
+const buscarFilme = async function (id) {
 
+    //Criando um clone do objeto JSON para manipular a sua estrutura local sem 
+    //modificar a estrutura original
+    let message = JSON.parse(JSON.stringify(config_message))
+
+    try {
+        //Validação para garantir que o id seja válido
+        if (id == '' || id == null || id == undefined || isNaN(id)) {
+            message.ERROR_BAD_REQUEST.field = '[ID] INVÁLIDO'
+            return message.ERROR_BAD_REQUEST // 400
+        } else {
+            let result = await filmeDAO.selectByIdFilme(id)
+
+            if(result){
+                if(result.length > 0){
+                    message.DEFAULT_MESSAGE.status = message.SUCESS_RESPONSE.status
+                    message.DEFAULT_MESSAGE.status_code = message.SUCESS_RESPONSE.status_code
+                    message.DEFAULT_MESSAGE.response = result
+
+                    return message.DEFAULT_MESSAGE //200
+                }else{
+                    return message.ERROR_NOT_FOUND // 404
+                }
+            }else{
+                return message.ERROR_INTERNAL_SERVER_MODEL // 500 (Model)
+            }
+        }
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER // 500
+
+    }
 }
 
 //Função para excluir filme
@@ -93,7 +150,7 @@ const validarDados = async function (filme) {
     } else if (isNaN(filme.avaliacao) || filme.avaliacao.length > 3) {
         message.ERROR_BAD_REQUEST.field = '[AVALIACAO] INVÁLIDO'
         return message.ERROR_BAD_REQUEST //400
-    } else if (filme.valor == '' || filme.valor == null || filme.valor == undefined || filme.valor.length > 5 || isNaN(filme.valor)) {
+    } else if (filme.valor == '' || filme.valor == null || filme.valor == undefined || filme.valor.split('.')[0].length > 3 || isNaN(filme.valor)) {
         message.ERROR_BAD_REQUEST.field = '[VALOR] INVÁLIDO'
         return message.ERROR_BAD_REQUEST //400
     } else if (filme.capa.length > 255) {
@@ -106,5 +163,7 @@ const validarDados = async function (filme) {
 }
 
 module.exports = {
-    inserirNovoFilme
+    inserirNovoFilme,
+    listarFilme,
+    buscarFilme
 }
