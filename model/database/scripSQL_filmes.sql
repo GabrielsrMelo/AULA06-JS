@@ -40,5 +40,45 @@ insert into tbl_filme (
                         '50.70',
                         'https://br.web.img3.acsta.net/c_310_420/img/5b/ea/5bea1aeac3323aeaaf82449a34fafbbf.jpg'
                         );
+create table tbl_classificacao (
+	id 				int not null primary key auto_increment,
+    sigla 			varchar(3) not null,
+    classificacao 	varchar(250) not null
+);
+
+desc tbl_classificacao;
+
+create table tbl_genero (
+	id 				int not null primary key auto_increment,
+    nome 			varchar(250) not null
+);
+
+desc tbl_genero;
+
+create table tbl_sexo (
+	id int not null primary key auto_increment,
+    sigla varchar(3) not null
+);
+
+insert into tbl_sexo(
+					  sigla
+                      )
+				values(
+					  'M'
+                );
+desc tbl_sexo;
+
+create table tbl_nacionalidade (
+	id int not null primary key auto_increment,
+    nome varchar(100) not null
+);
+
+desc tbl_nacionalidade;
+
+
+
+
 
 select * from tbl_filme;
+
+drop table tbl_nacionalidade;
