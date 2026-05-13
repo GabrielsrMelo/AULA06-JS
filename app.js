@@ -26,7 +26,7 @@ const corsOptions = {
 //Configura as permissões da API através do CORS
 app.use(cors(corsOptions))
 
-//ENDPOINTS
+//ENDPOINTS FILME
 app.post('/v1/senai/locadora/filme', bodyParserJson, async function(request, response){
     //Recebe o conteúdo dentro do body da requisição
     let dados = request.body
@@ -84,6 +84,7 @@ app.delete('/v1/senai/locadora/filme/:id', async function(request, response) {
     response.json(result)
 })
 
+//ENDPOINTS SEXO
 app.post('/v1/senai/locadora/sexo', bodyParserJson, async function(request, response){
     //Recebe o conteúdo dentro do body da requisição
     let dados = request.body
@@ -94,6 +95,14 @@ app.post('/v1/senai/locadora/sexo', bodyParserJson, async function(request, resp
 
     response.status(result.status_code)
     response.json(result)
+})
+
+app.get('/v1/senai/locadora/sexo', async function (request, response) {
+    let result = await controllerSexo.listarSexo()
+
+    response.status(result.status_code)
+    response.json(result)
+    
 })
 
 //Serve para inicializar a API para receber requisições 

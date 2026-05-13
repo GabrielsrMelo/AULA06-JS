@@ -68,6 +68,8 @@ insert into tbl_sexo(
                 );
 desc tbl_sexo;
 
+select * from tbl_sexo order by id desc
+
 create table tbl_nacionalidade (
 	id int not null primary key auto_increment,
     nome varchar(100) not null
