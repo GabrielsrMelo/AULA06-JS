@@ -14,6 +14,7 @@ const knexConfig = require('../../database_config_knex/KnexFile.js')
 // Criar a conexão com o BD MySQL
 const knexConex = knex(knexConfig.development)
 
+// Função para inserir dados na tabela de filme 
 const insertSexo = async function(sexo) {
 
     try {
@@ -21,7 +22,7 @@ const insertSexo = async function(sexo) {
 					  sigla
                       )
 				values(
-					  '${sexo}'
+					  '${sexo.sigla}'
                 );`
 
         let result = await knexConex.raw(sql)

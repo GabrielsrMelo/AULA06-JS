@@ -8,6 +8,7 @@ const bodyParser    = require('body-parser')
 
 //Import das CONTROLLERS do projeto
 const controllerFilme = require('./controller/filme/controller_filme.js')
+const controllerSexo  = require('./controller/sexo/controller_sexo.js')
 
 //Criando um objeto para manipular dados do body da API em formato JSON
 const bodyParserJson = bodyParser.json()
@@ -78,6 +79,18 @@ app.delete('/v1/senai/locadora/filme/:id', async function(request, response) {
     let id = request.params.id
 
     let result = await controllerFilme.excluirFilme(id)
+
+    response.status(result.status_code)
+    response.json(result)
+})
+
+app.post('/v1/senai/locadora/sexo', bodyParserJson, async function(request, response){
+    //Recebe o conteúdo dentro do body da requisição
+    let dados = request.body
+    //Recebe o content type da requisição, para validar se é um JSON
+    let contentType = request.headers['content-type']
+
+    let result = await controllerSexo.inserirSexo(dados, contentType)
 
     response.status(result.status_code)
     response.json(result)
