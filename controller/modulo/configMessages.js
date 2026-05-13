@@ -30,8 +30,8 @@ const SUCESS_CREATED_ITEM = {status: true, status_code: 201, message:'Registro i
 const SUCESS_RESPONSE     = {status: true, status_code: 200}
 //Retornos para PUT 200
 const SUCESS_UPDATED_ITEM = {status: true, status_code: 200, message: 'Registro atualizado com sucesso'}
-//Retornos para DELETE 
-const SUCESS_DELETE_ITEM  = {status: true, status_code: 200, message: 'Filme apagado com sucesso'}
+//Retornos para DELETE (200 OU 202)
+const SUCESS_DELETED_ITEM = {status: true, status_code: 200, message: 'Registro excluído com sucesso'}
 
 module.exports = {
     DEFAULT_MESSAGE,
@@ -42,6 +42,6 @@ module.exports = {
     ERROR_NOT_FOUND,
     SUCESS_CREATED_ITEM,
     SUCESS_UPDATED_ITEM,
-    SUCESS_DELETE_ITEM,
+    SUCESS_DELETED_ITEM,
     SUCESS_RESPONSE
 }

@@ -18,7 +18,7 @@ const app = express()
 //Conjunto de permissões a serem aplicadas no CORS da API 
 const corsOptions = {
     origin: ['*'], // A origem da requisição, podendos ser um ip ou *(todos)
-    methods: 'GET, POST, PUT, DELETE,OPTIONS', // São os verbos que seram liberados na API (GET, POST, PUT E DELETE)
+    methods: 'GET, POST, PUT, DELETE, OPTIONS', // São os verbos que seram liberados na API (GET, POST, PUT E DELETE)
     allowedHeaders: ['Content-type', 'Autorization'], // São permissões de cabeçalho do CORS
 }
 
@@ -74,8 +74,13 @@ app.put('/v1/senai/locadora/filme/:id', bodyParserJson, async function (request,
     response.json(result)
 })
 
-app.delete('v1/senai/locadora/filme/:id', bodyParserJson, async function(request, response) {
-       
+app.delete('/v1/senai/locadora/filme/:id', async function(request, response) {
+    let id = request.params.id
+
+    let result = await controllerFilme.excluirFilme(id)
+
+    response.status(result.status_code)
+    response.json(result)
 })
 
 //Serve para inicializar a API para receber requisições 

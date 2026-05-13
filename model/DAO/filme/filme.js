@@ -40,7 +40,7 @@ const insertFilme = async function (filme) {
         let result = await knexConex.raw(sql)
 
         if (result)
-            return true
+            return result[0].insertId
         else
             return false
     } catch(error) {
@@ -120,7 +120,7 @@ const selectByIdFilme = async function (id) {
 const deleteFilme = async function (id) {
     try {
 
-        let sql = `delete from tbl_filme  where id = ${id};`
+        let sql = `delete from tbl_filme where id= ${id};`
 
         let result = await knexConex.raw(sql)
 
