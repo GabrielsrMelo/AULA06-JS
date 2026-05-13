@@ -87,6 +87,40 @@ const listarSexo = async function () {
     
 }
 
+const buscarSexo = async function (id) {
+
+    //Criando um clone do objeto JSON para manipular a sua estrutura local sem 
+    //modificar a estrutura original
+    let message = JSON.parse(JSON.stringify(config_message))
+
+    try {
+        //Validação para garantir que o id seja válido
+        if (id == undefined || id == '' || id == null ||  isNaN(id)) {
+            message.ERROR_BAD_REQUEST.field = '[ID] INVÁLIDO'
+            return message.ERROR_BAD_REQUEST // 400
+        } else {
+            let result = await sexoDAO.selectByIdSexo(id)
+
+            if(result){
+                if(result.length > 0){
+                    message.DEFAULT_MESSAGE.status = message.SUCESS_RESPONSE.status
+                    message.DEFAULT_MESSAGE.status_code = message.SUCESS_RESPONSE.status_code
+                    message.DEFAULT_MESSAGE.response = result
+
+                    return message.DEFAULT_MESSAGE //200
+                }else{
+                    return message.ERROR_NOT_FOUND // 404
+                }
+            }else{
+                return message.ERROR_INTERNAL_SERVER_MODEL // 500 (Model)
+            }
+        }
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER // 500
+
+    }
+}
+
 const validarDados = async function (sexo) {
     //Criando um clone do objeto JSON para manipular a sua estrutura local sem 
     //modificar a estrutura original
@@ -102,5 +136,6 @@ const validarDados = async function (sexo) {
 
 module.exports = {
     inserirSexo,
-    listarSexo
+    listarSexo,
+    buscarSexo
 }

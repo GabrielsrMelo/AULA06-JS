@@ -58,7 +58,24 @@ const selectAllSexo = async function () {
     }
 }
 
+const selectByIdSexo = async function (id) {
+    try {
+        let sql = `select * from tbl_sexo where id=${id}`
+
+        let result = await knexConex.raw(sql)
+
+        if(Array.isArray(result)){
+            return result[0]
+        }else{
+            return false
+        }
+    }catch (error){
+        return false
+    }
+}
+
 module.exports = {
     insertSexo,
     selectAllSexo,
+    selectByIdSexo
 }

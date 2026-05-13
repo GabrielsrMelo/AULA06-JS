@@ -105,6 +105,15 @@ app.get('/v1/senai/locadora/sexo', async function (request, response) {
     
 })
 
+app.get('/v1/senai/locadora/sexo/:id', async function(request, response){
+    let id = request.params.id
+    
+    let result = await controllerSexo.buscarSexo(id)
+
+    response.status(result.status_code)
+    response.json(result)
+})
+
 //Serve para inicializar a API para receber requisições 
 app.listen(8080, function () {
     console.log('API funcionando e aguardando novas requisições ...')
