@@ -55,6 +55,52 @@ const inserirSexo = async function (sexo, contentType) {
 
 }
 
+const atualizarSexo = async function (sexo, id, contentType) {
+
+    let message = JSON.parse(JSON.stringify(config_message))
+
+    try {
+
+        //Validação do contentType para receber apenas JSON
+        if(String(contentType).toUpperCase() == 'APPLICATION/JSON'){
+                //Validação para ID incorreto
+                let resultBuscarId = await buscarSexo(id)
+
+                if(resultBuscarId.status){
+                    let validar = await validarDados(sexo)
+
+                    //Validação de campos obrigatorios para a atualização (Body)
+                    if(!validar){
+                        //Adiciono o atributo ID do sexo no JSON para ser enviado ao DAO
+                        sexo.id = id
+
+                        //Chama a função do DAO para Atualizar o Filme (dados e o ID)
+                        let result = await sexoDAO.updateSexo(sexo)
+
+                        if(result){
+                            message.DEFAULT_MESSAGE.status      = message.SUCESS_UPDATED_ITEM.status
+                            message.DEFAULT_MESSAGE.status_code = message.SUCESS_UPDATED_ITEM.status_code
+                            message.DEFAULT_MESSAGE.message     = message.SUCESS_UPDATED_ITEM.message
+                            message.DEFAULT_MESSAGE.response    = sexo
+                            return message.DEFAULT_MESSAGE //200 (Atualizado)
+                        }else{
+                            return message.ERROR_INTERNAL_SERVER_MODEL // 500 (Model)
+                        }
+                    }else{
+                        return validar // 400
+                    }
+                }else{
+                    return resultBuscarId //400 ou 404 ou 500
+                }
+        }else{
+            return message.ERRO_CONTENT_TYPE // 415
+        }
+        
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER // 500 (Controller)
+    }
+}
+
 const listarSexo = async function () {
 
         //Criando um clone do objeto JSON para manipular a sua estrutura local sem 
@@ -134,8 +180,42 @@ const validarDados = async function (sexo) {
     }
 }
 
+const excluirSexo = async function (id) {
+
+    let message = JSON.parse(JSON.stringify(config_message))
+
+    try {
+        
+        //Validação do erro 400 e 404
+         let resultBuscarId = await buscarSexo(id)
+
+         //Validação para verificar se o status é verdadeiro (se existe o filme)
+         if(resultBuscarId.status){
+            //Chamar a função do DAO para excluir o filme 
+            let result = await sexoDAO.deleteSexo(id)
+
+            if(result){
+                return message.SUCESS_DELETED_ITEM // 200 (Registro excluído)
+            }else{
+                return message.ERROR_INTERNAL_SERVER_MODEL // 500 (model)
+
+            }
+         }else{
+            return resultBuscarId
+         }
+
+
+
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER // 500 (Controller)
+    }
+}
+
+
 module.exports = {
     inserirSexo,
     listarSexo,
-    buscarSexo
+    buscarSexo,
+    atualizarSexo,
+    excluirSexo
 }

@@ -38,6 +38,27 @@ const insertSexo = async function(sexo) {
     }
 }
 
+const updateSexo = async function (sexo) {
+    try {
+    //Script para atualizar os dados do BD
+    let sql = `update tbl_sexo set 
+                    sigla    ='${sexo.sigla}'
+                    where id = ${sexo.id}`
+
+    //Executa o sript SQL no BD
+    let result = await knexConex.raw(sql)
+
+    if(result)
+        return true
+    else 
+        return false
+
+    } catch (error){
+        return false
+
+    }
+}
+
 const selectAllSexo = async function () {
     try {
         //Script para retornar todos os sexos cadastrados
@@ -74,8 +95,28 @@ const selectByIdSexo = async function (id) {
     }
 }
 
+const deleteSexo = async function (id) {
+    try {
+
+        let sql = `delete from tbl_sexo where id= ${id};`
+
+        let result = await knexConex.raw(sql)
+
+        if(result)
+            return true
+        else
+            return false
+
+        
+    } catch (error) {
+        return false
+    }
+}
+
 module.exports = {
     insertSexo,
     selectAllSexo,
-    selectByIdSexo
+    selectByIdSexo,
+    updateSexo,
+    deleteSexo
 }

@@ -24,7 +24,8 @@ const insertFilme = async function (filme) {
                             sinopse,
                             avaliacao, 
                             valor,
-                            capa
+                            capa,
+                            id_classificacao
                             )
                     values (
                             '${filme.nome}', 
@@ -33,7 +34,8 @@ const insertFilme = async function (filme) {
                             '${filme.sinopse}', 
                             if('${filme.avaliacao}' = '', null, '${filme.avaliacao}'),
                             '${filme.valor}',
-                            '${filme.capa}'
+                            '${filme.capa}',
+                            '${filme.id_classificacao}'
         );`
 
         //executar o ScriptSQL no banco de dados
@@ -54,13 +56,14 @@ const updateFilme = async function (filme) {
     try {
     //Script para atualizar os dados do BD
     let sql = `update tbl_filme set 
-	                nome            = '${filme.nome}',
-	                data_lancamento = '${filme.data_lancamento}',
-                    duracao         = '${filme.duracao}',
-	                sinopse         = '${filme.sinopse}',
-                    avaliacao       = if('${filme.avaliacao}' = '', null, '${filme.avaliacao}'),
-                    valor           = '${filme.valor}',
-                    capa            = '${filme.capa}'
+	                nome             = '${filme.nome}',
+	                data_lancamento  = '${filme.data_lancamento}',
+                    duracao          = '${filme.duracao}',
+	                sinopse          = '${filme.sinopse}',
+                    avaliacao        = if('${filme.avaliacao}' = '', null, '${filme.avaliacao}'),
+                    valor            = '${filme.valor}',
+                    capa             = '${filme.capa}',
+                    id_classificacao = '${filme.id_classificacao}'
 	                where id = ${filme.id}`
 
     //Executa o sript SQL no BD

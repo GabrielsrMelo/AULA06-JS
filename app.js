@@ -9,6 +9,7 @@ const bodyParser    = require('body-parser')
 //Import das CONTROLLERS do projeto
 const controllerFilme = require('./controller/filme/controller_filme.js')
 const controllerSexo  = require('./controller/sexo/controller_sexo.js')
+const controllerClassificacao = require('./controller/classificacao/controller_classificacao.js')
 
 //Criando um objeto para manipular dados do body da API em formato JSON
 const bodyParserJson = bodyParser.json()
@@ -109,6 +110,90 @@ app.get('/v1/senai/locadora/sexo/:id', async function(request, response){
     let id = request.params.id
     
     let result = await controllerSexo.buscarSexo(id)
+
+    response.status(result.status_code)
+    response.json(result)
+})
+
+app.put('/v1/senai/locadora/sexo/:id', bodyParserJson, async function (request, response) {
+    //Recebe o content type da requisição
+    let contentType = request.headers['content-type']
+
+    //Recebe o id do registro a ser atualizado
+    let id = request.params.id
+
+    //Recebe os dados enviados no corpo da requisição
+    let dados = request.body
+
+    //Chama a função de atualizar na controller e encaminha os dados, id e content-type
+    //obedecendo a ordem de criação na função da controller
+    let result = await controllerSexo.atualizarSexo(dados, id, contentType)
+
+    
+    response.status(result.status_code)
+    response.json(result)
+})
+
+app.delete('/v1/senai/locadora/sexo/:id', async function(request, response) {
+    let id = request.params.id
+
+    let result = await controllerSexo.excluirSexo(id)
+
+    response.status(result.status_code)
+    response.json(result)
+})
+
+//CLASSIFICACAO
+app.post('/v1/senai/locadora/classificacao', bodyParserJson, async function(request, response){
+    //Recebe o conteúdo dentro do body da requisição
+    let dados = request.body
+    
+    //Recebe o content type da requisição, para validar se é um JSON
+    let contentType = request.headers['content-type']
+
+    let result = await controllerClassificacao.inserirNovoClassificacao(dados, contentType)
+   
+    response.status(result.status_code)
+    response.json(result)
+})
+
+app.get('/v1/senai/locadora/classificacao', async function(request, response){
+    let result = await controllerClassificacao.listarClassificacao()
+
+    response.status(result.status_code)
+    response.json(result)
+})
+
+app.get('/v1/senai/locadora/classificacao/:id', async function(request, response){
+    //Recebe o ID via parametro
+    let id = request.params.id
+
+    let result = await controllerClassificacao.buscarClassificacao(id)
+
+    response.status(result.status_code)
+    response.json(result)
+})
+
+app.put('/v1/senai/locadora/classificacao/:id', bodyParserJson, async function(request, response){
+    //Recebe o contenty type da requisição
+    let contentType = request.headers['content-type']
+    //Recebe o ID do registro a ser atualizado
+    let id = request.params.id
+    //Recebe os dados enviados no corpo da requisição
+    let dados = request.body
+
+    //Chama a função de atualizar na controller e encaminha os dados, id e content-type
+    //obedecendo a ordem de criação na função da controller
+    let result = await controllerClassificacao.atualizarClassificacao(dados, id, contentType)
+
+    response.status(result.status_code)
+    response.json(result)
+})
+
+app.delete('/v1/senai/locadora/classificacao/:id', async function(request, response){
+    let id = request.params.id
+
+    let result = await controllerClassificacao.excluirClassificacao(id)
 
     response.status(result.status_code)
     response.json(result)
