@@ -80,6 +80,19 @@ select month(current_date()) as data_formatada;
 select year(current_date()) as data_formatada;
 
 #Funções para calculo
+#Retorna a diferença de horas
 select timediff('08:30:00', current_time()) as diferenca;
 
+#Retorna a diferença de dis 
 select (datediff('2026:05-10', '2026-05-13')*-1) as diferenca;
+
+#Calcula a idade de uma pessoa
+select concat( year(current_date()) - year('2007-07-08'), ' anos') as idade;
+
+#retorna somente a data ou a hora de um valor que tem dois juntos 
+select date(current_timestamp()) as data_atual;
+select time(current_timestamp()) as hora_atual;
+
+
+            
+            

@@ -78,7 +78,9 @@ create table tbl_nacionalidade (
 desc tbl_nacionalidade;
 
 
+alter table tbl_classificacao modify column id int not null auto_increment first;
 
+alter table tbl_classificacao change column caracteristicas descricao varchar(250) not null;
 
 
 select * from tbl_filme;

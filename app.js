@@ -152,7 +152,7 @@ app.post('/v1/senai/locadora/classificacao', bodyParserJson, async function(requ
     let contentType = request.headers['content-type']
 
     let result = await controllerClassificacao.inserirNovoClassificacao(dados, contentType)
-   
+   console.log(result)
     response.status(result.status_code)
     response.json(result)
 })

@@ -18,12 +18,11 @@ const inserirNovoClassificacao = async function(classificacao, contentType){
     //Criando um clone do objeto JSON para manipular a sua estrutura local sem
     //modificar a estrutura original
     let message = JSON.parse(JSON.stringify(config_message))
-    
     try {
    
         //Validação para o tipo de dados da requisição (somente JSON)
-        if (String(contentType).toUpperCase() == 'APPLICATION/JSON'){
-            
+        if(String(contentType).toUpperCase() == 'APPLICATION/JSON'){
+
             //Validação de dados para os atributos do classificacao (Status 400)
             let validar = await validarDados(classificacao)
 
@@ -32,21 +31,18 @@ const inserirNovoClassificacao = async function(classificacao, contentType){
             if(validar){
                 return validar //400
             }else{
-                
                 //Encaminha os dados do classificacao para o DAO
                 let result = await classificacaoDAO.insertClassificacao(classificacao)
 
                 if(result){ //201
-                    
                     //Criando o atributo ID no JSON do classificacao e colocando
                     // o ID gerado após o insert
                     classificacao.id = result
-                    console.log('Entrou aqui')
-                    message.DEFAULT_MESSAGE.status = message.SUCCESS_CREATED_ITEM.status
-                    message.DEFAULT_MESSAGE.status_code = message.SUCCESS_CREATED_ITEM.status_code
-                    message.DEFAULT_MESSAGE.message = message.SUCCESS_CREATED_ITEM.message
+
+                    message.DEFAULT_MESSAGE.status = message.SUCESS_CREATED_ITEM.status
+                    message.DEFAULT_MESSAGE.status_code = message.SUCESS_CREATED_ITEM.status_code
+                    message.DEFAULT_MESSAGE.message = message.SUCESS_CREATED_ITEM.message
                     message.DEFAULT_MESSAGE.response = classificacao
-                    
                 }else{ //500
                     return message.ERROR_INTERNAL_SERVER_MODEL //500 (model)
                 }
@@ -54,6 +50,7 @@ const inserirNovoClassificacao = async function(classificacao, contentType){
             }
         }else{
             return message.ERROR_CONTENT_TYPE //415
+            
         }
     } catch (error) {
         return message.ERROR_INTERNAL_SERVER_CONTROLLER //500 (controller)
