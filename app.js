@@ -194,15 +194,10 @@ app.put('/v1/senai/locadora/classificacao/:id', bodyParserJson, async function (
 app.delete('/v1/senai/locadora/classificacao/:id', async function (request, response) {
     let id = request.params.id
 
-    let result = await controllerClassificacao.excluirClassificacao(id)
+    let result = await controllerClassificacao.excluirclassificacao(id)
 
     response.status(result.status_code)
     response.json(result)
-})
-
-//Serve para inicializar a API para receber requisições 
-app.listen(8080, function () {
-    console.log('API funcionando e aguardando novas requisições ...')
 })
 
 //GENERO
@@ -213,6 +208,7 @@ app.post('/v1/senai/locadora/genero', bodyParserJson, async function (request, r
     let contentType = request.headers['content-type'] //recebe o content type da requisição para validar se é um json
 
     let result = await controllerGenero.inserirNovoGenero(dados, contentType)
+
 
     response.status(result.status_code)
     response.json(result)
@@ -267,6 +263,7 @@ app.delete('/v1/senai/locadora/genero/:id', async function (request, response) {
 })
 
 
+//Serve para inicializar a API para receber requisições 
 app.listen(8080, function () {
     console.log('Api funcionando e aguardando novas requisições ...')
 })

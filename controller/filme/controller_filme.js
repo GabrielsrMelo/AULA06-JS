@@ -14,15 +14,17 @@ const filmeDAO = require('../../model/DAO/filme/filme.js')
 
 //Import de arquivos de Controller
 const controller_classificacao = require('../classificacao/controller_classificacao.js')
+const controller_filme_genero = require('./controller_filme_genero.js')
 
 
 //Função para inserir um novo filme 
 const inserirNovoFilme = async function (filme, contentType) {
 
-    try {
-        //Criando um clone do objeto JSON para manipular a sua estrutura local sem 
+    //Criando um clone do objeto JSON para manipular a sua estrutura local sem 
         //modificar a estrutura original
         let message = JSON.parse(JSON.stringify(config_message))
+    try {
+        
 
         //Validação para o tipo de dados da requisição (Somente JSON)
         if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
@@ -40,6 +42,21 @@ const inserirNovoFilme = async function (filme, contentType) {
                     //Criando o atributo ID no JSON do Filme e colocando 
                     //o ID gerado após o insert 
                     filme.id = result
+                     
+                    //Manipulação de dados para inserir os Generos do Filme
+                    for (genero of filme.genero){
+                        //Cria o objeto JSON com os ids do filme e do genero
+                         let filmeGenero = { "id_filme": filme.id, 
+                                             "id_genero": genero.id
+                                         }
+                         //Chama a controller do filme genero para inserir os IDs                                        
+                         let resultInsertGenero = await controller_filme_genero.inserirNovoFilmeGenero(filmeGenero)
+                         
+                         if(!resultInsertGenero.status){
+                             return message.SUCESS_CREATED_ITEM_WARNIG //201 com alerta de dados não inseridos
+                         }
+ 
+                     }
 
 
                     message.DEFAULT_MESSAGE.status = message.SUCESS_CREATED_ITEM.status
@@ -51,7 +68,7 @@ const inserirNovoFilme = async function (filme, contentType) {
                 }
 
                 return message.DEFAULT_MESSAGE
-            }
+            }                                      
         } else {
             return message.ERRO_CONTENT_TYPE
         }
@@ -69,43 +86,67 @@ const atualizarFilme = async function (filme, id, contentType) {
     try {
 
         //Validação do contentType para receber apenas JSON
-        if(String(contentType).toUpperCase() == 'APPLICATION/JSON'){
-                //Validação para ID incorreto
-                let resultBuscarId = await buscarFilme(id)
+        if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
+            //Validação para ID incorreto
+            let resultBuscarId = await buscarFilme(id)
 
-                //Se a função encontrar o filme  o atributo status do JSON será verdadeiro
-                //Isso significa que o filme existe na base, caso não retorne true, então 
-                //o retorno da função poderá ser um 400 ou 404 ou até mesmo um 500
-                if(resultBuscarId.status){
-                    let validar = await validarDados(filme)
+            //Se a função encontrar o filme  o atributo status do JSON será verdadeiro
+            //Isso significa que o filme existe na base, caso não retorne true, então 
+            //o retorno da função poderá ser um 400 ou 404 ou até mesmo um 500
+            if (resultBuscarId.status) {
+                let validar = await validarDados(filme)
 
-                    //Validação de campos obrigatorios para a atualização (Body)
-                    if(!validar){
-                        //Adiciono o atributo ID do filme no JSON para ser enviado ao DAO
-                        filme.id = id
+                //Validação de campos obrigatorios para a atualização (Body)
+                if (!validar) {
+                    //Adiciono o atributo ID do filme no JSON para ser enviado ao DAO
+                    filme.id = id
 
-                        //Chama a função do DAO para Atualizar o Filme (dados e o ID)
-                        let result = await filmeDAO.updateFilme(filme)
+                    //Chama a função do DAO para Atualizar o Filme (dados e o ID)
+                    let result = await filmeDAO.updateFilme(filme)
 
-                        if(result){
-                            message.DEFAULT_MESSAGE.status      = message.SUCESS_UPDATED_ITEM.status
-                            message.DEFAULT_MESSAGE.status_code = message.SUCESS_UPDATED_ITEM.status_code
-                            message.DEFAULT_MESSAGE.message     = message.SUCESS_UPDATED_ITEM.message
-                            message.DEFAULT_MESSAGE.response    = filme
-                            return message.DEFAULT_MESSAGE //200 (Atualizado)
-                        }else{
-                            return message.ERROR_INTERNAL_SERVER_MODEL // 500 (Model)
+                    if (result) {
+
+                        //Manipulação de dados na tabela de relação entre filme e  genero
+                        let resultDeleteGenero = await controller_filme_genero.excluirGenerosIdFilme(filme.id)
+
+                        //Após a exclusão de todos os generos relacionados com o filme
+                        if (resultDeleteGenero.status) {
+
+                            //Manipulação de dados para inserir os Generos do Filme
+                            for (genero of filme.genero) {
+                                //Cria o objeto JSON com os ids do filme e do genero
+                                let filmeGenero = {
+                                    "id_filme": filme.id,
+                                    "id_genero": genero.id
+                                }
+                                //Chama a controller do filme genero para inserir os IDs                                        
+                                let resultInsertGenero = await controller_filme_genero.inserirNovoFilmeGenero(filmeGenero)
+
+                                if (!resultInsertGenero.status) {
+                                    return message.SUCCESS_CREATED_ITEM_WARNIG //201 com alerta de dados não inseridos
+                                }
+
+                            }
+
                         }
-                    }else{
-                        return validar // 400
+                        message.DEFAULT_MESSAGE.status = message.SUCESS_UPDATED_ITEM.status
+                        message.DEFAULT_MESSAGE.status_code = message.SUCESS_UPDATED_ITEM.status_code
+                        message.DEFAULT_MESSAGE.message = message.SUCESS_UPDATED_ITEM.message
+                        message.DEFAULT_MESSAGE.response = filme
+                        return message.DEFAULT_MESSAGE //200 (Atualizado)
+                    } else {
+                        return message.ERROR_INTERNAL_SERVER_MODEL // 500 (Model)
                     }
-                }else{
-                    return resultBuscarId //400 ou 404 ou 500
+                } else {
+                    return validar // 400
                 }
-        }else{
+            } else {
+                return resultBuscarId //400 ou 404 ou 500
+            }
+        } else {
             return message.ERRO_CONTENT_TYPE // 415
         }
-        
+
     } catch (error) {
         return message.ERROR_INTERNAL_SERVER_CONTROLLER // 500 (Controller)
     }
@@ -128,11 +169,11 @@ const listarFilme = async function () {
             if (result.length > 0) {
 
                 //Percorre o ARRAY de filmes para identificar os dados da classificação
-                for(filme of result){
+                for (filme of result) {
                     //Busca na controller da classificação do ID referente aos dados
                     let resultClassificacao = await controller_classificacao.buscarClassificacao(filme.id_classificacao)
                     //Se a classificação foi encontrada
-                    if(resultClassificacao.status){
+                    if (resultClassificacao.status) {
                         //Cria o atributo classificacao no filme e adiciona os dados referente a classificacao
                         filme.classificacao = resultClassificacao.response.classificacao
                         //Apaga o atributo id_classificacao do filme para não ficar repetido
@@ -167,38 +208,38 @@ const buscarFilme = async function (id) {
 
     try {
         //Validação para garantir que o id seja válido
-        if (id == undefined || id == '' || id == null ||  isNaN(id)) {
+        if (id == undefined || id == '' || id == null || isNaN(id)) {
             message.ERROR_BAD_REQUEST.field = '[ID] INVÁLIDO'
             return message.ERROR_BAD_REQUEST // 400
         } else {
             let result = await filmeDAO.selectByIdFilme(id)
 
-            if(result){
-                if(result.length > 0){
+            if (result) {
+                if (result.length > 0) {
 
-                                    //Percorre o ARRAY de filmes para identificar os dados da classificação
-                for(filme of result){
-                    //Busca na controller da classificação do ID referente aos dados
-                    let resultClassificacao = await controller_classificacao.buscarClassificacao(filme.id_classificacao)
-                    //Se a classificação foi encontrada
-                    if(resultClassificacao.status){
-                        //Cria o atributo classificacao no filme e adiciona os dados referente a classificacao
-                        filme.classificacao = resultClassificacao.response.classificacao
-                        //Apaga o atributo id_classificacao do filme para não ficar repetido
-                        delete filme.id_classificacao
+                    //Percorre o ARRAY de filmes para identificar os dados da classificação
+                    for (filme of result) {
+                        //Busca na controller da classificação do ID referente aos dados
+                        let resultClassificacao = await controller_classificacao.buscarClassificacao(filme.id_classificacao)
+                        //Se a classificação foi encontrada
+                        if (resultClassificacao.status) {
+                            //Cria o atributo classificacao no filme e adiciona os dados referente a classificacao
+                            filme.classificacao = resultClassificacao.response.classificacao
+                            //Apaga o atributo id_classificacao do filme para não ficar repetido
+                            delete filme.id_classificacao
 
+                        }
                     }
-                }
 
                     message.DEFAULT_MESSAGE.status = message.SUCESS_RESPONSE.status
                     message.DEFAULT_MESSAGE.status_code = message.SUCESS_RESPONSE.status_code
                     message.DEFAULT_MESSAGE.response = result
 
                     return message.DEFAULT_MESSAGE //200
-                }else{
+                } else {
                     return message.ERROR_NOT_FOUND // 404
                 }
-            }else{
+            } else {
                 return message.ERROR_INTERNAL_SERVER_MODEL // 500 (Model)
             }
         }
@@ -214,24 +255,24 @@ const excluirFilme = async function (id) {
     let message = JSON.parse(JSON.stringify(config_message))
 
     try {
-        
-        //Validação do erro 400 e 404
-         let resultBuscarId = await buscarFilme(id)
 
-         //Validação para verificar se o status é verdadeiro (se existe o filme)
-         if(resultBuscarId.status){
+        //Validação do erro 400 e 404
+        let resultBuscarId = await buscarFilme(id)
+
+        //Validação para verificar se o status é verdadeiro (se existe o filme)
+        if (resultBuscarId.status) {
             //Chamar a função do DAO para excluir o filme 
             let result = await filmeDAO.deleteFilme(id)
 
-            if(result){
+            if (result) {
                 return message.SUCESS_DELETED_ITEM // 200 (Registro excluído)
-            }else{
+            } else {
                 return message.ERROR_INTERNAL_SERVER_MODEL // 500 (model)
 
             }
-         }else{
+        } else {
             return resultBuscarId
-         }
+        }
 
 
 
@@ -247,29 +288,29 @@ const validarDados = async function (filme) {
     //modificar a estrutura original
     let message = JSON.parse(JSON.stringify(config_message))
 
-    if (filme.nome == undefined || filme.nome == '' || filme.nome == null ||  filme.nome.length > 80) {
+    if (filme.nome == undefined || filme.nome == '' || filme.nome == null || filme.nome.length > 80) {
         message.ERROR_BAD_REQUEST.field = '[NOME] INVÁLIDO'
         return message.ERROR_BAD_REQUEST //400
-    } else if (filme.data_lancamento == undefined || filme.data_lancamento == '' || filme.data_lancamento == null ||  filme.data_lancamento.length != 10) {
+    } else if (filme.data_lancamento == undefined || filme.data_lancamento == '' || filme.data_lancamento == null || filme.data_lancamento.length != 10) {
         message.ERROR_BAD_REQUEST.field = '[DATA_LANCAMENTO] INVÁLIDO'
         return message.ERROR_BAD_REQUEST //400
-    } else if ( filme.duracao == undefined || filme.duracao == '' || filme.duracao == null || filme.duracao.length < 5) {
+    } else if (filme.duracao == undefined || filme.duracao == '' || filme.duracao == null || filme.duracao.length < 5) {
         message.ERROR_BAD_REQUEST.field = '[DURACAO] INVÁLIDO'
         return message.ERROR_BAD_REQUEST //400
-    } else if (filme.sinopse == undefined || filme.sinopse == '' || filme.sinopse == null ) {
+    } else if (filme.sinopse == undefined || filme.sinopse == '' || filme.sinopse == null) {
         message.ERROR_BAD_REQUEST.field = '[SINOPSE] INVÁLIDO'
         return message.ERROR_BAD_REQUEST //400
     } else if (isNaN(filme.avaliacao) || filme.avaliacao.length > 3) {
         message.ERROR_BAD_REQUEST.field = '[AVALIACAO] INVÁLIDO'
         return message.ERROR_BAD_REQUEST //400
-    } else if (filme.valor == undefined || filme.valor == '' || filme.valor == null ||  filme.valor.split('.')[0].length > 3 || isNaN(filme.valor)) {
+    } else if (filme.valor == undefined || filme.valor == '' || filme.valor == null || filme.valor.split('.')[0].length > 3 || isNaN(filme.valor)) {
         message.ERROR_BAD_REQUEST.field = '[VALOR] INVÁLIDO'
         return message.ERROR_BAD_REQUEST //400
     } else if (filme.capa.length > 255) {
         message.ERROR_BAD_REQUEST.field = '[CAPA] INVÁLIDO'
         return message.ERROR_BAD_REQUEST //400
-     //Validação para a FK da classificacao
-    } else if (filme.id.classificacao == undefined || filme.id.classificacao == '' || filme.id.classificacao <=0 || filme.id.classificacao == null || isNaN(filme.id.classificacao)) {
+        //Validação para a FK da classificacao
+    } else if (filme.id.classificacao == undefined || filme.id.classificacao == '' || filme.id.classificacao <= 0 || filme.id.classificacao == null || isNaN(filme.id.classificacao)) {
         message.ERROR_BAD_REQUEST.field = '[ID.CLASSIFICACAO] INVÁLIDO'
         return config_message.ERROR_BAD_REQUEST //400
 
@@ -282,7 +323,7 @@ const validarDados = async function (filme) {
 module.exports = {
     inserirNovoFilme,
     listarFilme,
-    buscarFilme, 
+    buscarFilme,
     atualizarFilme,
     excluirFilme
 }

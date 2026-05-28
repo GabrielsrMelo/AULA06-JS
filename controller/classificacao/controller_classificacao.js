@@ -83,9 +83,9 @@ const atualizarClassificacao = async function(classificacao, id, contentType)
                     let result = await classificacaoDAO.updateClassificacao(classificacao)
 
                     if(result){
-                        message.DEFAULT_MESSAGE.status      = message.SUCCESS_UPDATED_ITEM.status
-                        message.DEFAULT_MESSAGE.status_code = message.SUCCESS_UPDATED_ITEM.status_code
-                        message.DEFAULT_MESSAGE.message     = message.SUCCESS_UPDATED_ITEM.message
+                        message.DEFAULT_MESSAGE.status      = message.SUCESS_UPDATED_ITEM.status
+                        message.DEFAULT_MESSAGE.status_code = message.SUCESS_UPDATED_ITEM.status_code
+                        message.DEFAULT_MESSAGE.message     = message.SUCESS_UPDATED_ITEM.message
                         message.DEFAULT_MESSAGE.response    = classificacao
                          
                         return message.DEFAULT_MESSAGE //200 (Atualizado)
@@ -125,8 +125,8 @@ const listarClassificacao = async function(){
         if(result){
             //Validação para verificar se existe conteúdo no array
             if(result.length > 0){
-                message.DEFAULT_MESSAGE.status = message.SUCCESS_RESPONSE.status
-                message.DEFAULT_MESSAGE.status_code = message.SUCCESS_RESPONSE.status_code
+                message.DEFAULT_MESSAGE.status = message.SUCESS_RESPONSE.status
+                message.DEFAULT_MESSAGE.status_code = message.SUCESS_RESPONSE.status_code
                 message.DEFAULT_MESSAGE.response.count = result.length
                 message.DEFAULT_MESSAGE.response.classificacao = result
 
@@ -159,8 +159,8 @@ const buscarClassificacao = async function(id){
 
             if(result){
                 if(result.length > 0){
-                    message.DEFAULT_MESSAGE.status = message.SUCCESS_RESPONSE.status
-                    message.DEFAULT_MESSAGE.status_code = message.SUCCESS_RESPONSE.status_code
+                    message.DEFAULT_MESSAGE.status = message.SUCESS_RESPONSE.status
+                    message.DEFAULT_MESSAGE.status_code = message.SUCESS_RESPONSE.status_code
                     message.DEFAULT_MESSAGE.response.classificacao = result
 
                     return message.DEFAULT_MESSAGE //200
@@ -191,7 +191,7 @@ const excluirclassificacao = async function(id){
             let result = await classificacaoDAO.deleteClassificacao(id)
 
             if(result){
-                return message.SUCCESS_DELETED_ITEM //200 (Registro excluído)
+                return message.SUCESS_DELETED_ITEM //200 (Registro excluído)
             }else{
                 return message.ERROR_INTERNAL_SERVER_MODEL //500 (Model)
             }

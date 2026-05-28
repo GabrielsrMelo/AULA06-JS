@@ -33,6 +33,8 @@ const SUCESS_UPDATED_ITEM = {status: true, status_code: 200, message: 'Registro 
 //Retornos para DELETE (200 OU 202)
 const SUCESS_DELETED_ITEM = {status: true, status_code: 200, message: 'Registro excluído com sucesso'}
 
+const SUCESS_CREATED_ITEM_WARNIG = {status: true, status_code: 200, message: 'Os dados principais foram inseridos com sucesso, porem alguns dados aprecentaram problemas!'} 
+
 module.exports = {
     DEFAULT_MESSAGE,
     ERROR_BAD_REQUEST,
@@ -43,5 +45,6 @@ module.exports = {
     SUCESS_CREATED_ITEM,
     SUCESS_UPDATED_ITEM,
     SUCESS_DELETED_ITEM,
-    SUCESS_RESPONSE
+    SUCESS_RESPONSE,
+    SUCESS_CREATED_ITEM_WARNIG
 }

@@ -66,8 +66,8 @@ const listarGenero = async function () {
 
         if (result) {
             if (result.length > 0) {
-                message.DEFAULT_MESSAGE.status = message.SUCCESS_RESPONSE.status
-                message.DEFAULT_MESSAGE.status_code = message.SUCCESS_RESPONSE.status_code
+                message.DEFAULT_MESSAGE.status = message.SUCESS_RESPONSE.status
+                message.DEFAULT_MESSAGE.status_code = message.SUCESS_RESPONSE.status_code
                 message.DEFAULT_MESSAGE.response.count = result.length
                 message.DEFAULT_MESSAGE.response.genero = result
 
@@ -96,8 +96,8 @@ const buscarGenero = async function (id) {
 
             if (result) {
                 if (result.length > 0) {
-                    message.DEFAULT_MESSAGE.status = message.SUCCESS_RESPONSE.status
-                    message.DEFAULT_MESSAGE.status_code = message.SUCCESS_RESPONSE.status_code
+                    message.DEFAULT_MESSAGE.status = message.SUCESS_RESPONSE.status
+                    message.DEFAULT_MESSAGE.status_code = message.SUCESS_RESPONSE.status_code
                     message.DEFAULT_MESSAGE.response = result
 
                     return message.DEFAULT_MESSAGE//200
@@ -131,9 +131,9 @@ const atualizarGenero = async function (genero, id, contentType) {
                     let result = await generoDAO.updateGenero(genero)
 
                     if (result) {
-                        message.DEFAULT_MESSAGE.status = message.SUCCESS_UPDATED_ITEM.status
-                        message.DEFAULT_MESSAGE.status_code = message.SUCCESS_UPDATED_ITEM.status_code
-                        message.DEFAULT_MESSAGE.message = message.SUCCESS_UPDATED_ITEM.message
+                        message.DEFAULT_MESSAGE.status = message.SUCESS_UPDATED_ITEM.status
+                        message.DEFAULT_MESSAGE.status_code = message.SUCESS_UPDATED_ITEM.status_code
+                        message.DEFAULT_MESSAGE.message = message.SUCESS_UPDATED_ITEM.message
                         message.DEFAULT_MESSAGE.response = genero
 
                         return message.DEFAULT_MESSAGE //200
@@ -170,7 +170,7 @@ const excluirGenero = async function (id) {
             let result = await generoDAO.deleteGenero(id)
 
             if (result) {
-                return message.SUCCESS_DELETE_ITEM //200(Registro excluido)
+                return message.SUCESS_DELETED_ITEM //200(Registro excluido)
             } else {
                 return message.ERROR_INTERNAL_SERVER_MODEL
             }
