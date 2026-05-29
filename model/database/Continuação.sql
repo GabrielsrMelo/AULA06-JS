@@ -181,3 +181,10 @@ where tbl_filme.nome like '%mario%'
             
             
 select * from tbl_filme;
+select * from tbl_classificacao where id= 4;
+select * from tbl_genero;
+
+#SobConsulta
+select * from tbl_filme_genero where id_filme in (
+													select tbl_filme.id from tbl_filme
+												);

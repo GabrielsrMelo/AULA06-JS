@@ -11,50 +11,45 @@ const config_message = require('../modulo/configMessages.js')
 const filmeGeneroDAO = require('../../model/DAO/filme_genero/filme_genero.js')
 
 
-//Função responsavel por inserir uma nova classificação na tabela
-//variavel filmegenero vai guarda os dois ids
-const inserirNovoFilmeGenero = async function (filmeGenero) {
-
-    //Criando um clone do objeto json para manipular a sua estrutura local sem modificar a estrutura original
+//Função para inserir um novo genero
+const inserirNovoFilmeGenero = async function(filmeGenero){
+   
+    //Criando um clone do objeto JSON para manipular a sua estrutura local sem
+    //modificar a estrutura original
     let message = JSON.parse(JSON.stringify(config_message))
-
+    
     try {
+            //Validação de dados para os atributos do genero (Status 400)
+            let validar = await validarDados(filmeGenero)
 
-        let validar = await validarDados(filmeGenero)
+            //Se a função validar retornar um Json de erro, iremos devolver ao 
+            // APP o erro
+            if(validar){
+                return validar //400
+            }else{
+                //Encaminha os dados do genero para o DAO
+                let result = await filmeGeneroDAO.insertFilmeGenero(filmeGenero)
 
-        //se a função validarDados retornar um json de erros, iremos devolver  ao APP o erro
-        if (validar) {
-            return validar //erro 400
+                if(result){ //201
+                    //Criando o atributo ID no JSON do genero e colocando
+                    // o ID gerado após o insert
+                    filmeGenero.id = result
 
-        } else {
-            //encaminha os dados da classificação para o DAO
-            let result = await filmeGeneroDAO.insertFilmeGenero(filmeGenero)
+                    message.DEFAULT_MESSAGE.status = message.SUCESS_CREATED_ITEM.status
+                    message.DEFAULT_MESSAGE.status_code = message.SUCESS_CREATED_ITEM.status_code
+                    message.DEFAULT_MESSAGE.message = message.SUCESS_CREATED_ITEM.message
+                    message.DEFAULT_MESSAGE.response = filmeGenero
 
-
-            //valida se o result deu certo ou não
-            if (result) {
-
-                //201 = se inserir no banco volta true e imprime essa menssagem
-                filmeGenero.id = result //criando o atributo ID no json da classificacao e colocando o id gerado após o inset
-                message.DEFAULT_MESSAGE.status = message.SUCESS_CREATE_ITEM.status
-                message.DEFAULT_MESSAGE.status_code = message.SUCESS_CREATE_ITEM.status_code
-                message.DEFAULT_MESSAGE.message = message.SUCESS_CREATE_ITEM.message
-                message.DEFAULT_MESSAGE.response = filmeGenero
-            } else {
-                //500 = erro no servidor (erro na model)
-                return message.ERRO_INTERNAL_SERVER_MODEL
+                    return message.DEFAULT_MESSAGE
+                }else{ //500
+                    return message.ERROR_INTERNAL_SERVER_MODEL //500 (model)
+                }
+                
             }
-
-            return message.DEFAULT_MESSAGE
-        }
-
     } catch (error) {
-        console.log(error)
-        //retorna um json para o app pois ele não sabe o que é false
-        return message.ERRO_INTERNAL_SERVER_CONTROLLER //erro 500 (controller)
-
+        // console.log(error)
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER //500 (controller)
     }
-
 }
 
 //Função responsavel por atualizar uma classificação ja existente
@@ -249,7 +244,7 @@ const buscarGeneroIdFilme = async function (idFilme) {
         } else {
             // Busca no banco de dados uma classificação pelo ID informado
             // Executa uma operação assíncrona para recuperar os dados da classificação com base no ID
-            let result = await filmeFilmeDAO.selectGenerosByIdFilme(id)
+            let result = await filmeGeneroDAO.selectGenerosByIdFilme(idFilme)
 
             console.log(result)
             if (result) {
